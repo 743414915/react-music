@@ -1,15 +1,21 @@
+import React from "react";
 import { HashRouter } from "react-router-dom";
 import ReactDOM from "react-dom/client";
+import { Provider } from "react-redux";
 import "normalize.css";
+
 import "./assets/css/index.less";
 
 import App from "@/App";
+import store from "@/store";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
 );
 root.render(
-  <HashRouter>
-    <App />
-  </HashRouter>,
+  <Provider store={store}>
+    <HashRouter>
+      <App />
+    </HashRouter>
+  </Provider>,
 );

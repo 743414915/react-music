@@ -1,7 +1,7 @@
 import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
-import pluginReact from "eslint-plugin-react";
+import pluginReact, { rules } from "eslint-plugin-react";
 
 
 const eslintConfig = [
@@ -11,5 +11,9 @@ const eslintConfig = [
   ...tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
 ];
+
+module.exports = {
+  rules: { "@typescript-eslint/no-explicit-any": "off", }
+}
 
 export default eslintConfig;
