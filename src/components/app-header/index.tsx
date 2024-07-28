@@ -1,20 +1,53 @@
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
 import type { FC, PropsWithChildren } from "react";
-import { Link } from "react-router-dom";
 
-import { HeaderWrapper } from "./style";
+import { HeaderLeft, HeaderRight, HeaderWrapper } from "./style";
+
+import headerTitle from "@/assets/data/header-title.json";
+import { NavLink } from "react-router-dom";
 
 interface IProps {}
 
 const AppHeader: FC<PropsWithChildren<IProps>> = () => {
+  /**
+   * @description 组件的展示逻辑
+   */
+  function showItem(item: any) {
+    if (item.type === "path") {
+      return (
+        <NavLink to={item.link}>
+          {item.title}
+          <i className="icon sprite_01"></i>
+        </NavLink>
+      );
+    }
+    return (
+      <a href={item.link} target={"_blank"}>
+        {item.title}
+      </a>
+    );
+  }
+
   return (
     <HeaderWrapper>
       <div className="content wrap-v1">
-        <Link to={"/discover"}>发现音乐</Link>
-        <Link to={"/mine"}>我的音乐</Link>
-        <Link to={"/download"}>下载客户端</Link>
-        <Link to={"/focus"}>关注</Link>
+        <HeaderLeft>
+          <a className={"logo sprite_01"} href="/">
+            网易云音乐
+          </a>
+          <div className={"title-list"}>
+            {headerTitle.map((item) => {
+              return (
+                <div className={"item"} key={item.title}>
+                  {showItem(item)}
+                </div>
+              );
+            })}
+          </div>
+        </HeaderLeft>
+        <HeaderRight>right</HeaderRight>
       </div>
+      <div className="divider"></div>
     </HeaderWrapper>
   );
 };
