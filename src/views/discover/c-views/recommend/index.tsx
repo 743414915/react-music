@@ -1,23 +1,24 @@
-import hyRequest from "@/service";
 import React, { memo, useEffect } from "react";
-
 import type { FC, PropsWithChildren } from "react";
+
+import { useAppDispatch } from "@/store";
+import { fetchBannerDataAction } from "./store/recommend";
+import TopBanner from "./c-cpns/top-banner";
 
 interface IProps {}
 
 const Recommend: FC<PropsWithChildren<IProps>> = () => {
-  // 测试网络请求
+  // 发起action获取数据
+  const dispatch = useAppDispatch();
   useEffect(() => {
-    hyRequest
-      .get({
-        url: "/banner",
-      })
-      .then((res) => {
-        console.log(res);
-      });
-  }, []);
+    dispatch(fetchBannerDataAction());
+  });
 
-  return <div>Recommend</div>;
+  return (
+    <div>
+      <TopBanner />
+    </div>
+  );
 };
 
 export default memo(Recommend);

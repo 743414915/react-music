@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import type { FC, PropsWithChildren } from "react";
-import {  NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import { NavWrapper } from "./style";
 import { discoverMenu } from "@/assets/data/local_data";
@@ -13,7 +13,7 @@ const NavBar: FC<PropsWithChildren<IProps>> = () => {
       <div className="nav">
         {discoverMenu.map((item) => {
           return (
-            <div className={"item"}>
+            <div className={"item"} key={item.title}>
               <NavLink to={item.link}>{item.title}</NavLink>
             </div>
           );
