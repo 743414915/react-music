@@ -29,12 +29,8 @@ const TopBanner: FC<PropsWithChildren<IProps>> = () => {
   function handleNextClick() {
     bannerRef.current?.next();
   }
-  /** 轮播图切换后回调 */
-  function handleAfterChange(current: number) {
-    // setCruuentIndex(current);
-  }
   /** 轮播图切换前回调 */
-  function handleBeforeChange(from: number, to: number) {
+  function handleBeforeChange(_: number, to: number) {
     // setCruuentIndex(-1);
     setCruuentIndex(to);
   }
@@ -57,7 +53,6 @@ const TopBanner: FC<PropsWithChildren<IProps>> = () => {
             effect={"fade"}
             ref={bannerRef}
             beforeChange={handleBeforeChange}
-            afterChange={handleAfterChange}
           >
             {banners.map((item) => {
               return (
