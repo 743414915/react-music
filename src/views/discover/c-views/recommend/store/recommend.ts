@@ -1,28 +1,40 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getBanners, getHotRecommend, getNewAlbum } from "../service/recommend";
-import { INewAlbum, ISongData } from "@/types";
+import {
+  getBanners,
+  getHotRecommend,
+  getNewAlbum,
+  getPlayListDetail,
+} from "../service/recommend";
+import { INewAlbum, IPlaylist, ISongData } from "@/types";
 
-export const fetchBannerDataAction = createAsyncThunk(
-  "banners",
+export const fetchRecommendDataAction = createAsyncThunk(
+  "fetchdata",
   async (_, { dispatch }) => {
-    const res = await getBanners();
-    dispatch(changeBannersAction(res.banners));
+    getBanners().then((res) => {
+      dispatch(changeBannersAction(res.banners));
+    });
+    getHotRecommend(8).then((res) => {
+      dispatch(changeHotRecommendAction(res.result));
+    });
+    getNewAlbum().then((res) => {
+      dispatch(changeNewAlbumAction(res.albums));
+    });
   },
 );
 
-export const fetchHotRecommendAction = createAsyncThunk(
-  "hotRecommend",
-  async (_, { dispatch }) => {
-    const res = await getHotRecommend(8);
-    dispatch(changeHotRecommendAction(res.result));
-  },
-);
+const rankingIds = [19723756, 3779629, 2884035];
+export const fetchRankingDataAcyion = createAsyncThunk(
+  "rankingData",
+  (_, { dispatch }) => {
+    const promises: Promise<any>[] = [];
+    rankingIds.forEach((id) => {
+      promises.push(getPlayListDetail(id));
+    });
 
-export const fetchNewAlbumAction = createAsyncThunk(
-  "newAlbums",
-  async (_, { dispatch }) => {
-    const res = await getNewAlbum();
-    dispatch(changeNewAlbumAction(res.albums));
+    Promise.all(promises).then((res) => {
+      const playlists = res.map((item) => item.playlist);
+      dispatch(changeRankingAction(playlists));
+    });
   },
 );
 
@@ -57,12 +69,14 @@ interface IRecommendState {
   }[];
   hotRecommends: ISongData[];
   newAlbums: INewAlbum[];
+  rankings: IPlaylist[];
 }
 
 const initialState: IRecommendState = {
   banners: [],
   hotRecommends: [],
   newAlbums: [],
+  rankings: [],
 };
 
 const recommendSlice = createSlice({
@@ -78,6 +92,9 @@ const recommendSlice = createSlice({
     changeNewAlbumAction(state, { payload }) {
       state.newAlbums = payload;
     },
+    changeRankingAction(state, { payload }) {
+      state.rankings = payload;
+    },
   },
 });
 
@@ -85,5 +102,6 @@ export const {
   changeBannersAction,
   changeHotRecommendAction,
   changeNewAlbumAction,
+  changeRankingAction,
 } = recommendSlice.actions;
 export default recommendSlice.reducer;

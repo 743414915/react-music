@@ -3,14 +3,14 @@ import type { FC, PropsWithChildren } from "react";
 
 import { useAppDispatch } from "@/store";
 import {
-  fetchBannerDataAction,
-  fetchHotRecommendAction,
-  fetchNewAlbumAction,
+  fetchRankingDataAcyion,
+  fetchRecommendDataAction,
 } from "./store/recommend";
 import { RecommendWrapper } from "./style";
 import TopBanner from "./c-cpns/top-banner";
 import HotRecommend from "./c-cpns/hot-recommend";
 import NewAlbum from "./c-cpns/new-album";
+import TopRanking from "./c-cpns/top-ranking";
 
 interface IProps {}
 
@@ -18,9 +18,8 @@ const Recommend: FC<PropsWithChildren<IProps>> = () => {
   // 发起action获取数据
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(fetchBannerDataAction());
-    dispatch(fetchHotRecommendAction());
-    dispatch(fetchNewAlbumAction());
+    dispatch(fetchRecommendDataAction());
+    dispatch(fetchRankingDataAcyion());
   });
 
   return (
@@ -31,6 +30,7 @@ const Recommend: FC<PropsWithChildren<IProps>> = () => {
           <div className="left">
             <HotRecommend />
             <NewAlbum />
+            <TopRanking />
           </div>
           <div className="right">right</div>
         </div>
