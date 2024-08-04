@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
+  getArtistList,
   getBanners,
   getHotRecommend,
   getNewAlbum,
   getPlayListDetail,
 } from "../service/recommend";
-import { INewAlbum, IPlaylist, ISongData } from "@/types";
+import { ISettleSingers, INewAlbum, IPlaylist, ISongData } from "@/types";
 
 export const fetchRecommendDataAction = createAsyncThunk(
   "fetchdata",
@@ -18,6 +19,9 @@ export const fetchRecommendDataAction = createAsyncThunk(
     });
     getNewAlbum().then((res) => {
       dispatch(changeNewAlbumAction(res.albums));
+    });
+    getArtistList(5).then((res) => {
+      dispatch(changeArtistListAction(res.artists));
     });
   },
 );
@@ -70,6 +74,7 @@ interface IRecommendState {
   hotRecommends: ISongData[];
   newAlbums: INewAlbum[];
   rankings: IPlaylist[];
+  settleSingers: ISettleSingers[];
 }
 
 const initialState: IRecommendState = {
@@ -77,6 +82,7 @@ const initialState: IRecommendState = {
   hotRecommends: [],
   newAlbums: [],
   rankings: [],
+  settleSingers: [],
 };
 
 const recommendSlice = createSlice({
@@ -95,6 +101,9 @@ const recommendSlice = createSlice({
     changeRankingAction(state, { payload }) {
       state.rankings = payload;
     },
+    changeArtistListAction(state, { payload }) {
+      state.settleSingers = payload;
+    },
   },
 });
 
@@ -103,5 +112,6 @@ export const {
   changeHotRecommendAction,
   changeNewAlbumAction,
   changeRankingAction,
+  changeArtistListAction,
 } = recommendSlice.actions;
 export default recommendSlice.reducer;
