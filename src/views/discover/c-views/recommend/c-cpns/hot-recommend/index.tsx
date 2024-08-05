@@ -22,7 +22,7 @@ const HotRecommend: FC<PropsWithChildren<IProps>> = () => {
       />
 
       <div className="recommend-list">
-        {HotRecommend.map((item) => {
+        {HotRecommend?.map((item) => {
           return <SongsMenuItem key={item.id} songData={item} />;
         })}
       </div>

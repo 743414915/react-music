@@ -14,12 +14,13 @@ const TopBanner: FC<PropsWithChildren<IProps>> = () => {
   const bannerRef = useRef<ElementRef<typeof Carousel>>(null);
 
   // 从store中获取数据
-  const { banners } = useAppSelector(
-    (state) => ({
-      banners: state.recommend.banners || [],
-    }),
-    appShallowEqual,
-  );
+  const { banners } =
+    useAppSelector(
+      (state) => ({
+        banners: state.recommend.banners,
+      }),
+      appShallowEqual,
+    );
 
   /** 轮播图点击了上一个 */
   function handlePrevClick() {

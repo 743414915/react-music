@@ -8,11 +8,13 @@ import {
 import { configureStore } from "@reduxjs/toolkit";
 import counter from "./modules/counter";
 import recommendReducer from "@/views/discover/c-views/recommend/store/recommend";
+import palyerReducer from "@/views/player/store/player";
 
 const store = configureStore({
   reducer: {
     counter,
     recommend: recommendReducer,
+    player: palyerReducer,
   },
 });
 

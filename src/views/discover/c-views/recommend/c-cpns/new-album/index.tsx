@@ -15,7 +15,7 @@ const NewAlbum: FC<PropsWithChildren<IProps>> = () => {
 
   /** 从redux中获取数据 */
   const { newAlbums } = useAppSelector((state) => ({
-    newAlbums: state.recommend.newAlbums || [],
+    newAlbums: state.recommend.newAlbums,
   }));
 
   /** 事件处理函数 */

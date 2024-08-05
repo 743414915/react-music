@@ -14,7 +14,7 @@ const HoyAnchor: FC<PropsWithChildren<IProps>> = () => {
       <div className="anchors">
         {hotRadios.map((item) => {
           return (
-            <div className="item">
+            <div className="item" key={item.name}>
               <a href="#/" className="image">
                 <img src={item.picUrl} alt="" />
               </a>

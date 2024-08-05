@@ -9,9 +9,10 @@ import TopRankingItem from "../top-ranking-item";
 interface IProps {}
 
 const TopRanking: FC<PropsWithChildren<IProps>> = () => {
-  const { rankings } = useAppSelector((state) => ({
-    rankings: state.recommend.rankings,
-  }));
+  const { rankings } =
+    useAppSelector((state) => ({
+      rankings: state.recommend.rankings,
+    }));
 
   return (
     <TopRankingWrapper>
