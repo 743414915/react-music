@@ -10,13 +10,14 @@ import {
 import { Link } from "react-router-dom";
 import { Slider } from "antd";
 import { appShallowEqual, useAppSelector } from "@/store";
-import { formatImageSize, getSongPlay } from "@/utils";
+import { formatImageSize, formatTime, getSongPlay } from "@/utils";
 
 interface IProps {}
 const AppPlayerBar: FC<PropsWithChildren<IProps>> = () => {
   const [isPlaying, setisPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const { currentSong } = useAppSelector(
@@ -27,7 +28,7 @@ const AppPlayerBar: FC<PropsWithChildren<IProps>> = () => {
   );
 
   useEffect(() => {
-    // audioRef.current!.src = getSongPlay(currentSong.id);
+    audioRef.current!.src = getSongPlay(currentSong.id);
     // audioRef.current
     //   ?.play()
     //   .then((res) => {
@@ -45,10 +46,11 @@ const AppPlayerBar: FC<PropsWithChildren<IProps>> = () => {
   /** 音乐播放进度处理 */
   function handleTimeupdate() {
     // 1.获取当前的播放时间
-    const currentTime = audioRef.current!.currentTime;
+    const currentTime = audioRef.current!.currentTime * 1000;
+    setCurrentTime(currentTime);
 
     // 2.计算当前歌曲进度
-    const progress = ((currentTime * 1000) / duration) * 100;
+    const progress = (currentTime / duration) * 100;
     setProgress(progress);
   }
 
@@ -61,6 +63,17 @@ const AppPlayerBar: FC<PropsWithChildren<IProps>> = () => {
 
     // 2.改变isPlaying的状态
     setisPlaying(!isPlaying);
+  }
+
+  /** @description 进度条点击 */
+  function handleChange(value: number) {
+    // 1.设置当前播放时间
+    const currentTime = (value / 100) * duration;
+    audioRef.current!.currentTime = currentTime / 1000;
+    setCurrentTime(currentTime);
+
+    // 2.设置进度
+    setProgress(value);
   }
 
   return (
@@ -93,12 +106,13 @@ const AppPlayerBar: FC<PropsWithChildren<IProps>> = () => {
                 value={progress}
                 step={0.5}
                 tooltip={{ formatter: null }}
+                onChange={handleChange}
               />
 
               <div className="time">
-                <span className="current">00:00</span>
+                <span className="current">{formatTime(currentTime)}</span>
                 <span className="divider">/</span>
-                <span className="duration">04:35</span>
+                <span className="duration">{formatTime(duration)}</span>
               </div>
             </div>
           </div>
