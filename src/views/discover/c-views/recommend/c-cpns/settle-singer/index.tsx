@@ -3,15 +3,18 @@ import React, { memo } from "react";
 import type { FC, PropsWithChildren } from "react";
 import { SettleSingerWrapper } from "./style";
 import AreaHeaderV2 from "@/components/area-header-v2";
-import { useAppSelector } from "@/store";
+import { appShallowEqual, useAppSelector } from "@/store";
 import { formatImageSize } from "@/utils";
 
 interface IProps {}
 
 const SettleSinger: FC<PropsWithChildren<IProps>> = () => {
-  const { settleSingers } = useAppSelector((state) => ({
-    settleSingers: state.recommend.settleSingers,
-  }));
+  const { settleSingers } = useAppSelector(
+    (state) => ({
+      settleSingers: state.recommend.settleSingers,
+    }),
+    appShallowEqual,
+  );
 
   return (
     <SettleSingerWrapper>

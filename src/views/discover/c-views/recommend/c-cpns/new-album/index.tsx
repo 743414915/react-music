@@ -4,7 +4,7 @@ import type { ElementRef, FC, PropsWithChildren } from "react";
 import { NewAlbumWrapper } from "./style";
 import AreaHeaderV1 from "@/components/area-header-v1";
 import { Carousel } from "antd";
-import { useAppSelector } from "@/store";
+import { appShallowEqual, useAppSelector } from "@/store";
 import NewAlbumItem from "@/components/new-album-item";
 
 interface IProps {}
@@ -14,9 +14,12 @@ const NewAlbum: FC<PropsWithChildren<IProps>> = () => {
   const bannerRef = useRef<ElementRef<typeof Carousel>>(null);
 
   /** 从redux中获取数据 */
-  const { newAlbums } = useAppSelector((state) => ({
-    newAlbums: state.recommend.newAlbums,
-  }));
+  const { newAlbums } = useAppSelector(
+    (state) => ({
+      newAlbums: state.recommend.newAlbums,
+    }),
+    appShallowEqual,
+  );
 
   /** 事件处理函数 */
   function handlePrevClick() {

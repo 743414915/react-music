@@ -1,12 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getCurrentSongList } from "../service/idnex";
+import { getCurrentSongList, getSongLyric } from "../service/idnex";
 import { IRootState } from "@/store";
+import { ILyric, parseLyric } from "@/utils";
 
 interface IAsyncThunkState {
   state: IRootState;
 }
 // 请求歌曲
-export const currentSongAction = createAsyncThunk<
+export const fetchCurrentSongAction = createAsyncThunk<
   void,
   number,
   IAsyncThunkState
@@ -16,34 +17,86 @@ export const currentSongAction = createAsyncThunk<
   const playSongList = getState().player.playSongList;
   const findIndex = playSongList.findIndex((item: any) => item.id === id);
   if (findIndex === -1) {
-    console.log(111);
     // 没有找到相同的
     const res = await getCurrentSongList(id);
+    if (!res.songs.length) {
+      return;
+    }
     const song = res.songs[0];
 
     // 把歌曲放到列表中
     const newPlaySongList = [...playSongList];
     newPlaySongList.push(song);
-    // dispatch(changeCurrentSongAction(song))
-    dispatch(changePlaySongList(newPlaySongList));
-    // dispatch(changePlaySongIndex(newPlaySongList.length - 1))
+    dispatch(changeCurrentSongAction(song));
+    dispatch(changePlaySongListAction(newPlaySongList));
+    dispatch(changePlaySongIndexAction(newPlaySongList.length - 1));
   } else {
-    console.log(222);
-    // const song = playSongList[findIndex]
-    // dispatch(changeCurrentSongAction(song))
-    // dispatch(changePlaySongIndex(findIndex))
+    const song = playSongList[findIndex];
+    dispatch(changeCurrentSongAction(song));
+    dispatch(changePlaySongIndexAction(findIndex));
   }
+
+  // 2.获取歌词
+  const res = await getSongLyric(id);
+  // 获取歌词的字符串
+  const lyricStr = res?.lrc?.lyric;
+
+  const lyrics = parseLyric(lyricStr);
+  dispatch(changeLyricsAction(lyrics));
+
+  // 解析歌词成对象
+});
+
+export const changeMusicAction = createAsyncThunk<
+  void,
+  boolean,
+  IAsyncThunkState
+>("changeMusic", async (isNext, { dispatch, getState }) => {
+  const player = getState().player;
+
+  // 1.获取当前播放模式
+  const playModel = player.playMode;
+  const songIndex = player.playSongIndex;
+  const songList = player.playSongList;
+
+  // 2.获取新歌曲的索引
+  let newIndex = songIndex;
+  if (playModel === 1) {
+    // 随机播放
+    newIndex = Math.floor(Math.random() * songList.length);
+  } else {
+    newIndex = isNext ? songIndex + 1 : songIndex - 1;
+    newIndex = newIndex > songList.length - 1 ? 0 : newIndex;
+    newIndex = newIndex < 0 ? songList.length - 1 : newIndex;
+  }
+
+  // 3. 获取当前的歌曲
+  const song = songList[newIndex];
+  dispatch(changeCurrentSongAction(song));
+  dispatch(changePlaySongIndexAction(newIndex));
+
+  // 4.请求新的歌词
+  const lyric = await getSongLyric(song.id);
+  const lyricStr = lyric.lrc.lyric;
+  const lyrics = parseLyric(lyricStr);
+  dispatch(changeLyricsAction(lyrics));
 });
 
 interface IPlayerState {
   currentSong: any;
   playSongList: any[];
+  playSongIndex: number;
+  lyrics: ILyric[];
+  /** @description 当前的歌词索引 */
+  lyricIndex: number;
+  /** @description 播放模式:0:顺序播放,1:随机播放,2:单曲循环 */
+  playMode: number;
 }
 
 const initialState: IPlayerState = {
   currentSong: {
     name: "温柔",
-    id: 2611596618,
+    id: 11111111,
     pst: 0,
     t: 0,
     ar: [{ id: 13193, name: "五月天", tns: [], alias: [] }],
@@ -279,17 +332,43 @@ const initialState: IPlayerState = {
       publishTime: 1312646400007,
     },
   ],
+  playSongIndex: -1,
+  lyrics: [],
+  lyricIndex: -1,
+  playMode: 0,
 };
 
 const playerSlice = createSlice({
   name: "player",
   initialState,
   reducers: {
-    changePlaySongList(state, { payload }) {
+    changePlaySongListAction(state, { payload }) {
       state.playSongList = payload;
+    },
+    changePlaySongIndexAction(state, { payload }) {
+      state.playSongIndex = payload;
+    },
+    changeCurrentSongAction(state, { payload }) {
+      state.currentSong = payload;
+    },
+    changeLyricsAction(state, { payload }) {
+      state.lyrics = payload;
+    },
+    changeLyricIndexAction(state, { payload }) {
+      state.lyricIndex = payload;
+    },
+    changePlayModeAction(state, { payload }) {
+      state.playMode = payload;
     },
   },
 });
 
-export const { changePlaySongList } = playerSlice.actions;
+export const {
+  changePlaySongListAction,
+  changeCurrentSongAction,
+  changeLyricsAction,
+  changeLyricIndexAction,
+  changePlaySongIndexAction,
+  changePlayModeAction,
+} = playerSlice.actions;
 export default playerSlice.reducer;

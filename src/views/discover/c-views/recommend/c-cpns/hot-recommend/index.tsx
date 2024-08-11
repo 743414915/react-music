@@ -3,15 +3,18 @@ import React, { memo } from "react";
 import type { FC, PropsWithChildren } from "react";
 import { HotRecommendWrapper } from "./style";
 import AreaHeaderV1 from "@/components/area-header-v1";
-import { useAppSelector } from "@/store";
+import { useAppSelector, appShallowEqual } from "@/store";
 import SongsMenuItem from "@/components/songs-menu-item";
 
 interface IProps {}
 
 const HotRecommend: FC<PropsWithChildren<IProps>> = () => {
-  const { HotRecommend } = useAppSelector((state) => ({
-    HotRecommend: state.recommend.hotRecommends,
-  }));
+  const { HotRecommend } = useAppSelector(
+    (state) => ({
+      HotRecommend: state.recommend.hotRecommends,
+    }),
+    appShallowEqual,
+  );
 
   return (
     <HotRecommendWrapper>

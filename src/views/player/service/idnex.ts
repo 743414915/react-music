@@ -1,14 +1,14 @@
-import cnRequest from "@/service";
+import hyRequest from "@/service";
 
 export function getCurrentSongList(ids: number) {
-  return cnRequest.get({
+  return hyRequest.get({
     url: "/song/detail",
     params: { ids },
   });
 }
 
 export function getSongLyric(id: number) {
-  return cnRequest.get({
+  return hyRequest.get({
     url: "/lyric",
     params: { id },
   });

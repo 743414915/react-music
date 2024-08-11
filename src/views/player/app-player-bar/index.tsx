@@ -8,36 +8,45 @@ import {
   HandleWrapper,
 } from "./style";
 import { Link } from "react-router-dom";
-import { Slider } from "antd";
-import { appShallowEqual, useAppSelector } from "@/store";
+import { message, Slider } from "antd";
+import { appShallowEqual, useAppDispatch, useAppSelector } from "@/store";
 import { formatImageSize, formatTime, getSongPlay } from "@/utils";
+import {
+  changeLyricIndexAction,
+  changeMusicAction,
+  changePlayModeAction,
+} from "../store/player";
 
 interface IProps {}
 const AppPlayerBar: FC<PropsWithChildren<IProps>> = () => {
-  const [isPlaying, setisPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const { currentSong } = useAppSelector(
+  const { currentSong, lyrics, lyricIndex, playMode } = useAppSelector(
     (state) => ({
       currentSong: state.player.currentSong,
+      lyrics: state.player.lyrics,
+      lyricIndex: state.player.lyricIndex,
+      playMode: state.player.playMode,
     }),
     appShallowEqual,
   );
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     audioRef.current!.src = getSongPlay(currentSong.id);
-    // audioRef.current
-    //   ?.play()
-    //   .then((res) => {
-    //     // setIsPlay(true);
-    //   })
-    //   .catch((err) => {
-    //     console.log("播放失败", err);
-    //     // setIsPlay(false);
-    //   });
+    audioRef.current
+      ?.play()
+      .then((res) => {
+        setIsPlaying(true);
+      })
+      .catch((err) => {
+        console.log("播放失败", err);
+        setIsPlaying(false);
+      });
 
     // 2.获取歌曲总时长
     setDuration(currentSong.dt);
@@ -52,17 +61,51 @@ const AppPlayerBar: FC<PropsWithChildren<IProps>> = () => {
     // 2.计算当前歌曲进度
     const progress = (currentTime / duration) * 100;
     setProgress(progress);
+
+    // 3.根据当前的时间匹配对应的歌词
+    let index = lyrics.length - 1;
+    for (let i = 0; i < lyrics.length; i++) {
+      const lyric = lyrics[i];
+      if (lyric.time > currentTime) {
+        index = i - 1;
+        break;
+      }
+    }
+
+    // 匹配上了对应的歌词索引
+    if (index === lyricIndex || index === -1) {
+      return;
+    }
+    dispatch(changeLyricIndexAction(index));
+    message.open({ content: lyrics[index].lyric, duration: 0, key: "lyric" });
+  }
+
+  /** @description 当前歌曲播放完毕事件 */
+  function handleTimeEnded() {
+    if (playMode == 2) {
+      // 说明当前是单曲循环
+      audioRef.current!.currentTime = 0;
+      audioRef.current!.play();
+    } else {
+      handleChangeMusic();
+    }
   }
 
   // 控制播放按钮
   function changePlayClick() {
     // 1.控制播放器的播放/暂停
     !isPlaying
-      ? audioRef.current?.play().catch(() => setisPlaying(false))
+      ? audioRef.current?.play().catch(() => setIsPlaying(false))
       : audioRef.current?.pause();
 
     // 2.改变isPlaying的状态
-    setisPlaying(!isPlaying);
+    setIsPlaying(!isPlaying);
+  }
+
+  /** @description 切换上一首下一首 */
+  function handleChangeMusic(isNext = true) {
+    dispatch(changeMusicAction(isNext));
+    !isPlaying && changePlayClick();
   }
 
   /** @description 进度条点击 */
@@ -76,16 +119,31 @@ const AppPlayerBar: FC<PropsWithChildren<IProps>> = () => {
     setProgress(value);
   }
 
+  /** @description 切换播放模式 */
+  function handleChangePlayMode() {
+    let newPlayMode = playMode + 1;
+    if (newPlayMode > 2) {
+      newPlayMode = 0;
+    }
+    dispatch(changePlayModeAction(newPlayMode));
+  }
+
   return (
     <AppPlayerBarWrapper className="sprite_playbar">
       <div className="content wrap-v2">
         <ControlWrapper $isPlay={isPlaying}>
-          <div className="btn sprite_playbar prev"></div>
+          <div
+            className="btn sprite_playbar prev"
+            onClick={() => handleChangeMusic(false)}
+          ></div>
           <div
             className="btn sprite_playbar play"
             onClick={changePlayClick}
           ></div>
-          <div className="btn sprite_playbar next"></div>
+          <div
+            className="btn sprite_playbar next"
+            onClick={() => handleChangeMusic()}
+          ></div>
         </ControlWrapper>
 
         <ContentWrapper>
@@ -118,7 +176,7 @@ const AppPlayerBar: FC<PropsWithChildren<IProps>> = () => {
           </div>
         </ContentWrapper>
 
-        <HandleWrapper $playMode={1}>
+        <HandleWrapper $playMode={playMode}>
           <div className="left">
             <button className="btn pip"></button>
             <button className="btn sprite_playbar favor"></button>
@@ -126,13 +184,20 @@ const AppPlayerBar: FC<PropsWithChildren<IProps>> = () => {
           </div>
           <div className="right sprite_playbar">
             <button className="btn sprite_playbar volume"></button>
-            <button className="btn sprite_playbar loop"></button>
+            <button
+              className="btn sprite_playbar loop"
+              onClick={handleChangePlayMode}
+            ></button>
 
             <button className="btn sprite_playbar playlist"></button>
           </div>
         </HandleWrapper>
       </div>
-      <audio ref={audioRef} onTimeUpdate={handleTimeupdate} />
+      <audio
+        ref={audioRef}
+        onEnded={handleTimeEnded}
+        onTimeUpdate={handleTimeupdate}
+      />
     </AppPlayerBarWrapper>
   );
 };

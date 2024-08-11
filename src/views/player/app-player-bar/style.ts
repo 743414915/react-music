@@ -172,6 +172,7 @@ export const HandleWrapper = styled.div<IHandle>`
       color: #ccc;
     } */
     .loop {
+      cursor: pointer;
       background-position: ${(props) => {
         switch (props.$playMode) {
           case 1:
